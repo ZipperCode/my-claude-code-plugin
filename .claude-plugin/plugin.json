@@ -1,0 +1,5 @@
+{
+  "name": "maestro",
+  "description": "Meta-workflow orchestrator: auto-detects project state, routes to spec-kit or openspec, with smart multi-model collaboration",
+  "author": { "name": "zipper" }
+}

@@ -1,0 +1,16 @@
+{
+  "description": "Maestro plugin hooks — auto-load workflow state on session start",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat .maestro/state.json 2>/dev/null || echo '{\"activeWorkflow\":null}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
