@@ -233,3 +233,7 @@ Append debug record to `.maestro/state.json` under `keyDecisions`:
   "timestamp": "<ISO>"
 }
 ```
+
+## Step 10: Optional Learning Extraction
+
+If the debugging session revealed project-specific patterns (common error causes, debugging strategies that worked, architectural insights), invoke the `learning-extractor` agent to capture these findings for future sessions.

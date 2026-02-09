@@ -144,6 +144,51 @@ Create `.maestro/config.json` with the detection results and default policy:
 
 Ensure `.maestro/` directory exists before writing. Also create `.maestro/summaries/` and `.maestro/consultations/` directories.
 
+## Step 6.5: Language Detection & Rules Recommendation
+
+Detect the project's primary language and recommend coding rules from the Maestro rules library.
+
+When executing this step, reference the following expertise:
+- "rules guide" — Language detection and rules installation guidance
+
+1. **Detect language indicators** in the current working directory:
+   ```bash
+   ls package.json tsconfig.json pyproject.toml setup.py Cargo.toml go.mod 2>/dev/null
+   ```
+
+2. **Map to language**:
+   - `package.json` + `tsconfig.json` → TypeScript
+   - `package.json` (no tsconfig) → JavaScript
+   - `pyproject.toml` or `setup.py` → Python
+   - `Cargo.toml` → Rust
+   - `go.mod` → Go
+
+3. **Present recommended rules**:
+   ```
+   📏 Coding Rules Available
+
+   Detected: {language} project
+
+   Recommended rules to install:
+     Common:
+       rules/common/coding-style.md    → .claude/rules/coding-style.md
+       rules/common/git-workflow.md    → .claude/rules/git-workflow.md
+       rules/common/testing.md         → .claude/rules/testing.md
+       rules/common/security.md        → .claude/rules/security.md
+     {Language}-specific:
+       rules/{lang}/patterns.md        → .claude/rules/{lang}-patterns.md
+       rules/{lang}/tools.md           → .claude/rules/{lang}-tools.md
+
+   To install:
+     mkdir -p .claude/rules
+     cp <PLUGIN_DIR>/rules/common/*.md .claude/rules/
+     cp <PLUGIN_DIR>/rules/{lang}/*.md .claude/rules/
+
+   ℹ️ Rules are reference templates — customize after copying.
+   ```
+
+4. **Do NOT auto-copy** — only guide the user on which rules to install and how
+
 ## Step 7: Report Summary
 
 Present results in a clear table format:

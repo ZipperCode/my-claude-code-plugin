@@ -32,6 +32,39 @@ The user's arguments are: `$ARGUMENTS`
    - `--target <path>` → specify target project directory (default: current working directory)
 3. If no `--target`, ask the user which project directory to analyze, or default to cwd
 
+## Phase 1.8: Prompt Enhancement (Optional)
+
+Reference the "prompt enhance" skill for requirement enhancement.
+
+1. **Read project context**:
+   - `package.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` for tech stack
+   - `.maestro/config.json` for available models and policy
+   - `.maestro/state.json` for current workflow state and previous decisions
+
+2. **Evaluate requirement**:
+   - If requirement is already detailed (>200 chars + ≥3 technical keywords) → minimal enhancement (auto-fill project context only, no questions)
+   - If requirement is brief → full enhancement with up to 3 clarifying questions
+
+3. **Auto-fill context**: Inject detected tech stack, existing patterns, and workflow state into the requirement context
+
+4. **Present enhanced requirement** to the user:
+   ```
+   📝 Requirement Enhancement
+
+   Original: {user's requirement}
+
+   Project context detected:
+   - Tech stack: {detected}
+   - Existing patterns: {relevant}
+
+   Enhanced requirement:
+   {original + context enrichment}
+
+   {Clarifying questions if any}
+   ```
+
+5. **Downstream usage**: All subsequent Phases use the enhanced requirement (preserving the original text alongside the enriched context)
+
 ## Phase 1.5: Verify Workflow Tool Readiness
 
 Before proceeding with project detection, verify that the required slash commands are registered in the target project. This prevents users from going through the entire detection flow only to discover commands are unavailable at the end.
@@ -278,6 +311,18 @@ Present to user:
 💡 Run /maestro:status at any time to check progress.
 ```
 
+## Phase 4.5: Suggest Plan/Execute Workflow
+
+If multi-model collaboration was triggered in Phase 3, add this note after presenting the routing result:
+
+```
+💡 For complex requirements, consider the separated workflow:
+   1. /maestro:plan <requirement> — Analysis and planning only (no code changes)
+   2. /maestro:execute — Execute the generated plan step by step
+
+This gives you time to review and edit the plan before implementation begins.
+```
+
 ## Phase 5: Save State
 
 Write workflow state to `.maestro/state.json`:
@@ -302,6 +347,10 @@ Write workflow state to `.maestro/state.json`:
 ```
 
 Ensure `.maestro/` directory exists before writing.
+
+## Phase 6: Optional Learning Extraction
+
+If this session involved substantial analysis (multi-model collaboration was triggered, or significant project detection work was done), invoke the `learning-extractor` agent to capture project-specific conventions, decisions, and patterns for future sessions.
 
 ### Cross-directory state synchronization
 

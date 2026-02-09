@@ -24,19 +24,65 @@ REQUIRED_FILES=(
   ".claude-plugin/plugin.json"
   "CLAUDE.md"
   "README.md"
+  # Commands — original
   "commands/init.md"
   "commands/go.md"
   "commands/consult.md"
   "commands/status.md"
+  # Commands — F2: plan/execute
+  "commands/plan.md"
+  "commands/execute.md"
+  # Commands — F3: context
+  "commands/context.md"
+  # Commands — F5: verify
+  "commands/verify.md"
+  # Commands — F6: tools
+  "commands/tools.md"
+  # Commands — F7: review/debug (already existed)
+  "commands/review.md"
+  "commands/debug.md"
+  # Agents — original
   "agents/workflow-detector.md"
   "agents/quality-gate.md"
   "agents/context-curator.md"
   "agents/model-coordinator.md"
+  # Agents — F5: verifier
+  "agents/verifier.md"
+  # Agents — F7: learning-extractor
+  "agents/learning-extractor.md"
+  # Scripts — original
   "scripts/detect-project-state.sh"
   "scripts/check-deps.sh"
+  # Scripts — F1: hooks
+  "scripts/auto-format.sh"
+  "scripts/typecheck-after-edit.sh"
+  "scripts/detect-debug-statements.sh"
+  "scripts/save-state-snapshot.sh"
+  # Skills — original
   "skills/workflow-routing/SKILL.md"
   "skills/mcp-protocols/SKILL.md"
   "skills/token-management/SKILL.md"
+  "skills/role-prompts/SKILL.md"
+  # Skills — F3: contexts
+  "skills/contexts/SKILL.md"
+  # Skills — F4: rules-guide
+  "skills/rules-guide/SKILL.md"
+  # Skills — F7: learning
+  "skills/learning/SKILL.md"
+  # Skills — F8: prompt-enhance
+  "skills/prompt-enhance/SKILL.md"
+  # Rules — F4
+  "rules/common/coding-style.md"
+  "rules/common/git-workflow.md"
+  "rules/common/testing.md"
+  "rules/common/security.md"
+  "rules/typescript/patterns.md"
+  "rules/typescript/tools.md"
+  "rules/python/patterns.md"
+  "rules/python/tools.md"
+  "rules/rust/patterns.md"
+  "rules/rust/tools.md"
+  # Other
   "hooks/hooks.json"
   "templates/constitution.md"
 )
@@ -107,6 +153,10 @@ info "Checking shell scripts..."
 SHELL_SCRIPTS=(
   "scripts/detect-project-state.sh"
   "scripts/check-deps.sh"
+  "scripts/auto-format.sh"
+  "scripts/typecheck-after-edit.sh"
+  "scripts/detect-debug-statements.sh"
+  "scripts/save-state-snapshot.sh"
 )
 
 for f in "${SHELL_SCRIPTS[@]}"; do

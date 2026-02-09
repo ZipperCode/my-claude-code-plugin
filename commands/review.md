@@ -211,3 +211,7 @@ Append review record to `.maestro/state.json` under `keyDecisions`:
   "timestamp": "<ISO>"
 }
 ```
+
+## Step 10: Optional Learning Extraction
+
+If the review uncovered project-specific patterns, conventions, or architectural decisions worth preserving, invoke the `learning-extractor` agent to capture these insights for future sessions.

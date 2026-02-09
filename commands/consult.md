@@ -217,3 +217,7 @@ Append the consultation summary to `.maestro/state.json` under `keyDecisions`:
   "timestamp": "<ISO>"
 }
 ```
+
+## Step 9: Optional Learning Extraction
+
+If this consultation involved substantial analysis (both models consulted, or detailed single-model analysis), invoke the `learning-extractor` agent to capture project-specific conventions, decisions, and patterns discovered during the consultation.

@@ -42,3 +42,11 @@
 - MCP calls require structured output to control response length
 - `keyDecisions` in state.json is bounded by `policy.storage.keyDecisions.maxInState` — overflow entries are archived to `.maestro/summaries/decisions-archive.md` by context-curator
 - `.maestro/consultations/` files are cleaned by context-curator after each MCP call, following `policy.storage.consultations.maxAge` and `maxCount` limits
+
+## Verification Rules
+- Run /maestro:verify before suggesting PR creation
+- Code verification failures should be resolved before proceeding
+
+## Context Mode Rules
+- When activeContext is set in state.json, respect the mode's tool priorities
+- Auto-switch context mode on workflow stage transitions when appropriate

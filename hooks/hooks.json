@@ -1,5 +1,5 @@
 {
-  "description": "Maestro plugin hooks — auto-load workflow state on session start",
+  "description": "Maestro plugin hooks — lifecycle automation",
   "hooks": {
     "SessionStart": [
       {
@@ -7,7 +7,63 @@
           {
             "type": "command",
             "command": "cat .maestro/state.json 2>/dev/null || echo '{\"activeWorkflow\":null}'",
-            "timeout": 5
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "for f in .maestro/learnings/conventions.md .maestro/learnings/decisions.md .maestro/learnings/patterns.md; do [ -f \"$f\" ] && echo \"--- $(basename $f) ---\" && tail -20 \"$f\"; done 2>/dev/null || true",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/detect-debug-statements.sh\"",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/auto-format.sh\"",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/typecheck-after-edit.sh\"",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/save-state-snapshot.sh\"",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f .maestro/state.json ]; then echo 'Maestro session ended. Learnings can be extracted with learning-extractor agent.' >&2; fi",
+            "timeout": 3000
           }
         ]
       }
