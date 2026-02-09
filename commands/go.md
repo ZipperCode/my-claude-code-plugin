@@ -121,7 +121,9 @@ Determine if multi-model collaboration should be triggered.
    - Apply any `policy.custom` overrides
    - Resolve `mcp.outputHint`, `mcp.maxCalls`, `mcp.allowFollowUp`, `mcp.maxFollowUps`
 
-2. **If codex available**: Call codex MCP for backend/algorithm analysis
+2. **Parallel Model Invocation**: Call codex and gemini **simultaneously** (not sequentially) to minimize wait time. When both models are available, invoke both MCP calls in a single response — do NOT wait for one to finish before starting the other.
+
+   **If codex available** — call codex MCP for backend/algorithm analysis:
    ```
    Tool: mcp__codex__codex
    PROMPT: "As a backend/algorithm expert, analyze this requirement: {requirement}
@@ -133,9 +135,7 @@ Determine if multi-model collaboration should be triggered.
    sandbox: "read-only"
    ```
 
-   **Check return**: Verify `response.success === true`. If `false`, log `response.error` and fall back to Claude backend analysis.
-
-3. **If gemini available**: Call gemini MCP for frontend/UI analysis
+   **If gemini available** — call gemini MCP for frontend/UI analysis (**in the same tool-call batch as codex**):
    ```
    Tool: mcp__gemini__gemini
    PROMPT: "As a frontend/UI design expert with strong aesthetic sense, analyze this requirement: {requirement}
@@ -147,11 +147,13 @@ Determine if multi-model collaboration should be triggered.
    sandbox: false
    ```
 
-   **⚠️ Note**: gemini's `sandbox` is a **boolean** (`false`), NOT a string like codex. Gemini does NOT support `cd` parameter.
+   **⚠️ Parameter differences**: gemini's `sandbox` is a **boolean** (`false`), NOT a string like codex. Gemini does NOT support `cd` parameter.
 
-   **Check return**: Verify `response.success === true`. If `false`, log `response.error` and fall back to Claude frontend analysis.
+   > **Why parallel?** MCP calls typically take 30-120 seconds each. Parallel execution reduces total wait time from `codex_time + gemini_time` to `max(codex_time, gemini_time)`, saving ~50% wait time.
 
-4. **Post-process responses** (Consumer-Side Processing):
+   **Check returns**: For each response, verify `response.success === true`. If `false`, log `response.error` and fall back to Claude analysis for that domain.
+
+3. **Post-process responses** (Consumer-Side Processing):
 
    For each successful MCP response:
    ```
@@ -162,14 +164,14 @@ Determine if multi-model collaboration should be triggered.
 
    Ensure `.maestro/consultations/` directory exists before writing.
 
-5. **SESSION_ID follow-up** (policy-controlled):
+4. **SESSION_ID follow-up** (policy-controlled):
 
    If policy allows follow-up (`mcp.allowFollowUp === true`) and the response contains incomplete signals (TODO, TBD, "to be continued", truncated lists, ellipsis):
    - Use the `SESSION_ID` from the response to send a concise follow-up question (~500 tokens)
    - Append the follow-up response to the same consultation file
    - Re-extract the combined summary
 
-6. **Synthesize**: Merge both extracted summaries, highlight conflicts, and present a unified recommendation
+5. **Synthesize**: Merge both extracted summaries, highlight conflicts, and present a unified recommendation
 
 ### Degradation strategy:
 - codex unavailable → Claude handles backend analysis + gemini for frontend
@@ -177,6 +179,60 @@ Determine if multi-model collaboration should be triggered.
 - Both unavailable → Claude performs all analysis solo
 
 ## Phase 4: Route to Workflow
+
+### Generate Plan File (if multi-model analysis was performed)
+
+If multi-model collaboration was triggered in Phase 3, generate a structured plan file that preserves the full consultation results as an editable artifact:
+
+Write to `.maestro/plan.md`:
+
+```markdown
+# Maestro Plan — {requirement_brief}
+
+> Generated at: {ISO_timestamp}
+> Workflow: {spec-kit | openspec}
+> Models consulted: {codex, gemini | details}
+
+## Requirement
+
+{full_requirement_text}
+
+## Detection Result
+
+- **Project type**: {greenfield | brownfield}
+- **Confidence**: {high | medium | low}
+- **Scores**: Greenfield {N} / Brownfield {N}
+
+## Backend Analysis {codex | Claude}
+
+{backend_analysis_structured_summary}
+
+## Frontend Analysis {gemini | Claude}
+
+{frontend_analysis_structured_summary}
+
+## Conflicts & Resolutions
+
+{conflicts_and_how_they_were_resolved}
+
+## Unified Recommendations
+
+{synthesized_recommendation}
+
+## Key Decisions
+
+{list_of_key_decisions_made}
+
+## Open Questions
+
+{remaining_questions_for_user}
+
+---
+*This file is editable. Modify any section before proceeding to the next workflow stage.*
+*Subsequent stages will reference this plan for context.*
+```
+
+> **Purpose**: This file survives across sessions without Token compression loss. Users can edit it to adjust recommendations before proceeding. Downstream commands can reference `.maestro/plan.md` for context.
 
 ### If greenfield → spec-kit:
 

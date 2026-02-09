@@ -57,7 +57,9 @@ Decompose the discussion topic into:
 - **Backend sub-questions**: Data models, API design, business logic, performance, security
 - **Frontend sub-questions**: UI architecture, components, interactions, state management, UX
 
-## Step 5: Call External Models
+## Step 5: Call External Models (Parallel Invocation)
+
+When both codex and gemini are available (and not restricted by `--backend-only` / `--frontend-only`), invoke both MCP calls **simultaneously in a single response** — do NOT wait for one to finish before starting the other. This reduces total wait time from `codex_time + gemini_time` to `max(codex_time, gemini_time)`.
 
 ### Backend Analysis (codex)
 
@@ -88,15 +90,11 @@ cd: "{project_dir}"
 sandbox: "read-only"
 ```
 
-**Check return**: Verify `response.success === true` and extract content from `response.agent_messages`. If `response.success === false`, log `response.error` and fall back to Claude backend analysis.
-
-If codex unavailable → Claude performs backend analysis directly.
-
 ### Frontend Analysis (gemini)
 
 If gemini is available and not `--backend-only`:
 
-Call `mcp__gemini__gemini` with:
+Call `mcp__gemini__gemini` with (**in the same tool-call batch as codex**):
 ```
 PROMPT: "As a frontend/UI design expert with strong aesthetic sense, analyze the following topic:
 
@@ -124,9 +122,16 @@ sandbox: false
 
 **⚠️ Note**: gemini's `sandbox` is a **boolean** (`false`), NOT a string. Gemini does NOT support `cd` parameter — do not include it.
 
-**Check return**: Verify `response.success === true` and extract content from `response.agent_messages`. If `response.success === false`, log `response.error` and fall back to Claude frontend analysis.
+> **Why parallel?** MCP calls typically take 30-120 seconds each. Parallel execution saves ~50% wait time when both models are available.
 
-If gemini unavailable → Claude performs frontend analysis directly.
+### Return Handling
+
+**Check returns**: For each response, verify `response.success === true` and extract content from `response.agent_messages`. If `response.success === false`, log `response.error` and fall back to Claude analysis for that domain.
+
+### Degradation
+
+- codex unavailable → Claude performs backend analysis directly.
+- gemini unavailable → Claude performs frontend analysis directly.
 
 ### MCP Response Format (both codex and gemini)
 

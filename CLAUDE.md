@@ -24,6 +24,12 @@
 - When codex is unavailable → Claude assumes backend analysis + gemini for frontend
 - When gemini is unavailable → codex for backend + Claude assumes frontend analysis
 - When both unavailable → Claude performs all analysis solo
+- When both codex and gemini are available, invoke both MCP calls **in parallel** (in the same tool-call batch) to minimize wait time
+
+## External Code Safety Rules
+- When external models (codex/gemini) return code suggestions, patches, or implementation recommendations, Claude MUST review the code and implement it in Claude's own way — do NOT directly copy-paste or apply external model-generated code without review
+- External model code may contain security vulnerabilities, style inconsistencies, or incorrect assumptions about the project context
+- Treat external model code suggestions as **design intent references**, not as production-ready code
 
 ## Token Management Rules
 - Stage summary lengths follow `.maestro/config.json` → `policy` settings (index summary in state.json + detailed summary in `.maestro/summaries/`)
