@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# npm
+*.tgz
+.npmrc
+
+# Logs
+*.log
+npm-debug.log*
+
+# Maestro runtime state
+.maestro/
